@@ -1,12 +1,11 @@
 #pragma once
-#include <iostream>
-#include <SFML/Graphics.hpp>
-#include <vector>
-#include <fstream>
 #include "Tile.h"
+#include <SFML/Graphics.hpp>
+#include <fstream>
+#include <iostream>
 #include <unordered_set>
+#include <vector>
 using namespace std;
-
 
 class Board
 {
@@ -15,21 +14,24 @@ class Board
 	sf::Sprite DFSbutton;
 	sf::Sprite DjikstraButton;
 	sf::Sprite resetButton;
+	sf::Sprite newMazeButton;
 	sf::Sprite BellmanFordButton;
-	vector<vector<Tile>> tiles;
 	sf::Text text;
-
+	vector<vector<Tile>> tiles;
+	vector<unordered_set<int>> adjList;
 
 public:
 	Board();
 	void Draw(sf::RenderWindow& window);
-	void leftClick(sf::Vector2i mousePos, sf::RenderWindow& window, vector<unordered_set<int>>& adjList, int src, int end);
+	void leftClick(sf::Vector2i mousePos, sf::RenderWindow& window);
 	void resetGame();
 	void addTile(Tile& tile, int x, int y);
-	void setMaze(vector<vector<bool>> matrix);
-	void runBFS(sf::RenderWindow& window, vector<unordered_set<int>>& adjList, int src, int end);
-	void runDFS(sf::RenderWindow& window, vector<unordered_set<int>>& adjList, int src, int end);
-	void runDjikstra(sf::RenderWindow& window, vector<unordered_set<int>>& adjList, int src, int end);
-	void runBellmanFord(sf::RenderWindow& window, vector<unordered_set<int>>& adjList, int src, int end);
+	void setBoard();
+	void runBFS(sf::RenderWindow& window, int src, int end);
+	void runDFS(sf::RenderWindow& window, int src, int end);
+	void runDjikstra(sf::RenderWindow& window, int src, int end);
+	void runBellmanFord(sf::RenderWindow& window, int src, int end);
 	void reDraw(sf::RenderWindow& window, int x, int y);
+	static vector<unordered_set<int>> generateGraph(int H, int W);
+	vector<vector<bool>> graphToMaze(int H, int W);
 };
