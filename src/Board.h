@@ -12,7 +12,7 @@ class Board
 	sf::Sprite timeButton;
 	sf::Sprite BFSbutton;
 	sf::Sprite DFSbutton;
-	sf::Sprite DjikstraButton;
+	sf::Sprite DijkstraButton;
 	sf::Sprite resetButton;
 	sf::Sprite newMazeButton;
 	sf::Sprite BellmanFordButton;
@@ -29,7 +29,8 @@ public:
 	void setBoard();
 	void runBFS(sf::RenderWindow& window, int src, int end);
 	void runDFS(sf::RenderWindow& window, int src, int end);
-	void runDjikstra(sf::RenderWindow& window, int src, int end);
+	void runDijkstra(sf::RenderWindow& window, int src, int end);
+	void runAStar(sf::RenderWindow& window, int src, int end);
 	void runBellmanFord(sf::RenderWindow& window, int src, int end);
 	void reDraw(sf::RenderWindow& window, int x, int y);
 	static vector<unordered_set<int>> generateGraph(int H, int W);

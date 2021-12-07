@@ -12,8 +12,8 @@ Board::Board()
 	BFSbutton.setPosition(0, 601);
 	DFSbutton.setTexture(TextureManager::getTexture("DFS"));
 	DFSbutton.setPosition(217, 601);
-	DjikstraButton.setTexture(TextureManager::getTexture("Djikstra"));
-	DjikstraButton.setPosition(651, 601);
+	DijkstraButton.setTexture(TextureManager::getTexture("Djikstra"));
+	DijkstraButton.setPosition(651, 601);
 	resetButton.setTexture(TextureManager::getTexture("reset"));
 	resetButton.setPosition(921, 0);
 	newMazeButton.setTexture(TextureManager::getTexture("newMaze"));
@@ -29,7 +29,7 @@ Board::Board()
 void Board::Draw(sf::RenderWindow& window)
 {
 	window.draw(BFSbutton);
-	window.draw(DjikstraButton);
+	window.draw(DijkstraButton);
 	window.draw(resetButton);
 	window.draw(newMazeButton);
 	window.draw(timeButton);
@@ -89,7 +89,7 @@ void Board::leftClick(sf::Vector2i mousePos, sf::RenderWindow& window)
 
 	auto BFSbuttonBounds = BFSbutton.getGlobalBounds();
 	auto DFSbuttonBounds = DFSbutton.getGlobalBounds();
-	auto DjikstraButtonBounds = DjikstraButton.getGlobalBounds();
+	auto DijkstraButtonBounds = DijkstraButton.getGlobalBounds();
 	auto BellmanFordButtonBounds = BellmanFordButton.getGlobalBounds();
 	auto resetButtonBounds = resetButton.getGlobalBounds();
 	auto newMazeButtonBounds = newMazeButton.getGlobalBounds();
@@ -98,10 +98,15 @@ void Board::leftClick(sf::Vector2i mousePos, sf::RenderWindow& window)
 	if (resetButtonBounds.contains(mousePos.x, mousePos.y))
 	{
 		resetGame();
+		Draw(window);
+		window.display();
 	}
 	if (newMazeButtonBounds.contains(mousePos.x, mousePos.y))
 	{
+		resetGame();
 		setBoard();
+		Draw(window);
+		window.display();
 	}
 	if (BFSbuttonBounds.contains(mousePos.x, mousePos.y))
 	{
@@ -113,15 +118,15 @@ void Board::leftClick(sf::Vector2i mousePos, sf::RenderWindow& window)
 		//Start the DFS visualization
 		runDFS(window, src, end);
 	}
-	if (DjikstraButtonBounds.contains(mousePos.x, mousePos.y))
+	if (DijkstraButtonBounds.contains(mousePos.x, mousePos.y))
 	{
-		//Start the Djikstra visualization
-		runDjikstra(window, src, end);
+		//Start the Dijkstra visualization
+		runDijkstra(window, src, end);
 	}
 	if (BellmanFordButtonBounds.contains(mousePos.x, mousePos.y))
 	{
 		//Start the Bellman-Ford visualization
-		runBellmanFord(window, src, end);
+		runAStar(window, src, end);
 	}
 	if (timeButtonBounds.contains(mousePos.x, mousePos.y))
 	{
@@ -289,47 +294,42 @@ void Board::runDFS(sf::RenderWindow& window, int src, int end)
 	cout << "Distance for DFS Path: " << path.size() << endl;
 }
 
-void Board::runDjikstra(sf::RenderWindow& window, int src, int end)
+void Board::runDijkstra(sf::RenderWindow& window, int src, int end)
 {
 	resetGame();
 	vector<int> path;
 	unordered_set<int> computed;
-	unordered_set<int> notComputed;
 	computed.emplace(src);
-	//filling notComputed with all verticies except src
-	for (unsigned int i = 0; i < adjList.size(); i++)
-	{
-		if (computed.count(i) != 1)
-		{
-			notComputed.emplace(i);
-		}
-	}
-	// distance to each vertex
-	vector<int> d(adjList.size(), 999999);
+	vector<int> d(adjList.size(), INT_MAX);
 	d[src] = 0;
-	// keeps track of predecessor
 	vector<int> p(adjList.size(), -1);
 
-	for (auto it = adjList[src].begin(); it != adjList[src].end(); ++it)
+	for (auto i : adjList[src])
 	{
-		d[*it] = 1;
-		p[*it] = src;
+		d[i] = 1;
+		p[i] = src;
 	}
 	tiles[1][0].makeCrossed(true);
 	tiles[1][1].makeCrossed(true);
 	Draw(window);
 	window.display();
 
-	while (!notComputed.empty())
+	while (computed.size() < 875)
 	{
 		//need the smallest index that hasnt been visited yet
-		vector<int> temp = d;
-		for (auto it = computed.begin(); it != computed.end(); ++it)
+		int minIndex;
+		int minValue = INT_MAX;
+		for (unsigned int i = 0; i < d.size(); i++)
 		{
-			temp[*it] = INT_MAX;
+			if (!computed.count(i))
+			{
+				if (d[i] < minValue)
+				{
+					minValue = d[i];
+					minIndex = i;
+				}
+			}
 		}
-
-		int minIndex = std::min_element(temp.begin(), temp.end()) - temp.begin();
 		computed.emplace(minIndex);
 
 		// Edge includer
@@ -350,16 +350,15 @@ void Board::runDjikstra(sf::RenderWindow& window, int src, int end)
 		Draw(window);
 		window.display();
 
-		notComputed.erase(minIndex);
-
-		for (auto it = adjList[minIndex].begin(); it != adjList[minIndex].end(); ++it)
+		// Relax all uncomputed neighbors
+		for (auto i : adjList[minIndex])
 		{
-			if (notComputed.count(*it) != 0)
+			if (!computed.count(i))
 			{
-				if (d[minIndex] + 1 < d[*it])
+				if (d[minIndex] + 1 < d[i])
 				{
-					d[*it] = d[minIndex] + 1;
-					p[*it] = minIndex;
+					d[i] = d[minIndex] + 1;
+					p[i] = minIndex;
 				}
 			}
 		}
@@ -388,39 +387,80 @@ void Board::runDjikstra(sf::RenderWindow& window, int src, int end)
 		Draw(window);
 		window.display();
 	}
-	cout << "Distance for Djikstra Path: " << path.size() << endl;
+	cout << "Distance for Dijkstra's Path: " << path.size() << endl;
 }
 
-void Board::runBellmanFord(sf::RenderWindow& window, int src, int end)
+void Board::runAStar(sf::RenderWindow& window, int src, int end)
 {
 	resetGame();
 	vector<int> path;
-	vector<int> d(adjList.size(), 999999);
-	vector<int> p(adjList.size(), -1);
+	unordered_set<int> computed;
+	computed.emplace(src);
+	vector<int> d(adjList.size(), INT_MAX);
 	d[src] = 0;
-	p[src] = 0;
-	for (unsigned int j = 0; j < adjList.size() - 1; j++)
+	vector<int> p(adjList.size(), -1);
+
+	for (auto i : adjList[src])
 	{
+		d[i] = 1;
+		p[i] = src;
+	}
+	tiles[1][0].makeCrossed(true);
+	tiles[1][1].makeCrossed(true);
+	Draw(window);
+	window.display();
 
-		//Visualizing the nodes???? not sure micheal plz help
-		//int yVal = j / 35 * 2 + 1;
-		//int xVal = j % 35 * 2 + 1;
-		//tiles[yVal][xVal].makeCrossed(true);
-		//Draw(window);
-		//window.display();
-
-		for (unsigned int i = 0; i < adjList.size(); i++)
+	while (computed.size() < 875)
+	{
+		//need the highest priority index that hasnt been visited yet
+		int minIndex;
+		unsigned int minValue = UINT_MAX;
+		for (unsigned int i = 0; i < d.size(); i++)
 		{
-			for (auto it = adjList[i].begin(); it != adjList[i].end(); ++it)
+			if (!computed.count(i))
 			{
-				if (d[*it] > d[i] + 1)
+				unsigned int hValue = d[i] + (24 - i / 35 - 1) + (35 - i % 35 - 1);
+				if (hValue < minValue)
 				{
-					d[*it] = d[i] + 1;
-					p[*it] = i;
+					minValue = hValue;
+					minIndex = i;
+				}
+			}
+		}
+		computed.emplace(minIndex);
+
+		// Edge includer
+		int yVal = minIndex / 35 * 2 + 1;
+		int xVal = minIndex % 35 * 2 + 1;
+		if (minIndex == 874)
+			tiles[49][70].makeCrossed(true);
+		for (int n : adjList[minIndex])
+		{
+			int yValN = n / 35 * 2 + 1;
+			int xValN = n % 35 * 2 + 1;
+			if (tiles[yValN][xValN].isCrossedTrue())
+				tiles[(yVal + yValN) / 2][(xVal + xValN) / 2].makeCrossed(true);
+		}
+
+		//Trying to highlight what stuff has been done already
+		tiles[yVal][xVal].makeCrossed(true);
+		Draw(window);
+		window.display();
+
+		// Relax all uncomputed neighbors
+		for (auto i : adjList[minIndex])
+		{
+			if (!computed.count(i))
+			{
+				if (d[minIndex] + 1 < d[i])
+				{
+					d[i] = d[minIndex] + 1;
+					p[i] = minIndex;
 				}
 			}
 		}
 	}
+
 	//HIGHLIGHTING SELECTED PATH IN DARK GREEN
 	int currNode = end;
 	path.push_back(currNode);
@@ -444,11 +484,7 @@ void Board::runBellmanFord(sf::RenderWindow& window, int src, int end)
 		Draw(window);
 		window.display();
 	}
-	tiles[1][0].makeFinalPath(true);
-	tiles[1][0].makeCrossed(false);
-	Draw(window);
-	window.display();
-	cout << "Distance for BellmanFord Path: " << path.size() << endl;
+	cout << "Distance for A* Path: " << path.size() << endl;
 }
 
 void Board::resetGame()
