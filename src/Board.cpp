@@ -302,12 +302,15 @@ void Board::runDijkstra(sf::RenderWindow& window, int src, int end)
 	computed.emplace(src);
 	vector<int> d(adjList.size(), INT_MAX);
 	d[src] = 0;
+	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> fringe;
+	fringe.emplace(make_pair(0, src));
 	vector<int> p(adjList.size(), -1);
 
 	for (auto i : adjList[src])
 	{
 		d[i] = 1;
 		p[i] = src;
+		fringe.emplace(make_pair(1, i));
 	}
 	tiles[1][0].makeCrossed(true);
 	tiles[1][1].makeCrossed(true);
@@ -316,20 +319,9 @@ void Board::runDijkstra(sf::RenderWindow& window, int src, int end)
 
 	while (computed.size() < 875)
 	{
-		//need the smallest index that hasnt been visited yet
-		int minIndex;
-		int minValue = INT_MAX;
-		for (unsigned int i = 0; i < d.size(); i++)
-		{
-			if (!computed.count(i))
-			{
-				if (d[i] < minValue)
-				{
-					minValue = d[i];
-					minIndex = i;
-				}
-			}
-		}
+		//need the highest priority index that hasnt been visited yet
+		int minIndex = fringe.top().second;
+		fringe.pop();
 		computed.emplace(minIndex);
 
 		// Edge includer
@@ -359,8 +351,15 @@ void Board::runDijkstra(sf::RenderWindow& window, int src, int end)
 				{
 					d[i] = d[minIndex] + 1;
 					p[i] = minIndex;
+					fringe.emplace(make_pair(d[i], i));
 				}
 			}
+		}
+
+		// Stop if reached end
+		if (minIndex == end)
+		{
+			break;
 		}
 	}
 
@@ -398,12 +397,15 @@ void Board::runAStar(sf::RenderWindow& window, int src, int end)
 	computed.emplace(src);
 	vector<int> d(adjList.size(), INT_MAX);
 	d[src] = 0;
+	priority_queue<pair<unsigned int, int>, vector<pair<unsigned int, int>>, greater<pair<unsigned int, int>>> fringe;
+	fringe.emplace(make_pair((24 - src / 35) + (34 - src % 35), src));
 	vector<int> p(adjList.size(), -1);
 
 	for (auto i : adjList[src])
 	{
 		d[i] = 1;
 		p[i] = src;
+		fringe.emplace(make_pair(1 + (24 - i / 35) + (34 - i % 35), i));
 	}
 	tiles[1][0].makeCrossed(true);
 	tiles[1][1].makeCrossed(true);
@@ -413,20 +415,8 @@ void Board::runAStar(sf::RenderWindow& window, int src, int end)
 	while (computed.size() < 875)
 	{
 		//need the highest priority index that hasnt been visited yet
-		int minIndex;
-		unsigned int minValue = UINT_MAX;
-		for (unsigned int i = 0; i < d.size(); i++)
-		{
-			if (!computed.count(i))
-			{
-				unsigned int hValue = d[i] + (24 - i / 35 - 1) + (35 - i % 35 - 1);
-				if (hValue < minValue)
-				{
-					minValue = hValue;
-					minIndex = i;
-				}
-			}
-		}
+		int minIndex = fringe.top().second;
+		fringe.pop();
 		computed.emplace(minIndex);
 
 		// Edge includer
@@ -456,8 +446,15 @@ void Board::runAStar(sf::RenderWindow& window, int src, int end)
 				{
 					d[i] = d[minIndex] + 1;
 					p[i] = minIndex;
+					fringe.emplace(make_pair(d[i] + (24 - i / 35) + (34 - i % 35), i));
 				}
 			}
+		}
+
+		// Stop if reached end
+		if (minIndex == end)
+		{
+			break;
 		}
 	}
 
