@@ -31,6 +31,8 @@ public:
 	void runDFS(sf::RenderWindow& window, int src, int end);
 	void runDijkstra(sf::RenderWindow& window, int src, int end);
 	void runAStar(sf::RenderWindow& window, int src, int end);
+	static int h(int v);
+	static unsigned int f(vector<int> d, int v);
 	void runBellmanFord(sf::RenderWindow& window, int src, int end);
 	void reDraw(sf::RenderWindow& window, int x, int y);
 	static vector<unordered_set<int>> generateGraph(int H, int W);

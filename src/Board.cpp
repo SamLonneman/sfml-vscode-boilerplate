@@ -303,14 +303,14 @@ void Board::runDijkstra(sf::RenderWindow& window, int src, int end)
 	vector<int> d(adjList.size(), INT_MAX);
 	d[src] = 0;
 	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> fringe;
-	fringe.emplace(make_pair(0, src));
+	fringe.emplace(make_pair(d[src], src));
 	vector<int> p(adjList.size(), -1);
 
 	for (auto i : adjList[src])
 	{
 		d[i] = 1;
 		p[i] = src;
-		fringe.emplace(make_pair(1, i));
+		fringe.emplace(make_pair(d[i], i));
 	}
 	tiles[1][0].makeCrossed(true);
 	tiles[1][1].makeCrossed(true);
@@ -398,14 +398,14 @@ void Board::runAStar(sf::RenderWindow& window, int src, int end)
 	vector<int> d(adjList.size(), INT_MAX);
 	d[src] = 0;
 	priority_queue<pair<unsigned int, int>, vector<pair<unsigned int, int>>, greater<pair<unsigned int, int>>> fringe;
-	fringe.emplace(make_pair((24 - src / 35) + (34 - src % 35), src));
+	fringe.emplace(make_pair(f(d, src), src));
 	vector<int> p(adjList.size(), -1);
 
 	for (auto i : adjList[src])
 	{
 		d[i] = 1;
 		p[i] = src;
-		fringe.emplace(make_pair(1 + (24 - i / 35) + (34 - i % 35), i));
+		fringe.emplace(make_pair(f(d, i), i));
 	}
 	tiles[1][0].makeCrossed(true);
 	tiles[1][1].makeCrossed(true);
@@ -446,7 +446,7 @@ void Board::runAStar(sf::RenderWindow& window, int src, int end)
 				{
 					d[i] = d[minIndex] + 1;
 					p[i] = minIndex;
-					fringe.emplace(make_pair(d[i] + (24 - i / 35) + (34 - i % 35), i));
+					fringe.emplace(make_pair(f(d, i), i));
 				}
 			}
 		}
@@ -482,6 +482,16 @@ void Board::runAStar(sf::RenderWindow& window, int src, int end)
 		window.display();
 	}
 	cout << "Distance for A* Path: " << path.size() << endl;
+}
+
+int Board::h(int v)
+{
+	return (25 - v / 35 - 1) + (35 - v % 35 - 1);
+}
+
+unsigned int Board::f(vector<int> d, int v)
+{
+	return d[v] + h(v);
 }
 
 void Board::resetGame()
