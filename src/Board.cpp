@@ -18,8 +18,8 @@ Board::Board()
 	resetButton.setPosition(921, 0);
 	newMazeButton.setTexture(TextureManager::getTexture("newMaze"));
 	newMazeButton.setPosition(0, 0);
-	BellmanFordButton.setTexture(TextureManager::getTexture("BellmanFord"));
-	BellmanFordButton.setPosition(868, 601);
+	AStarButton.setTexture(TextureManager::getTexture("AStar"));
+	AStarButton.setPosition(868, 601);
 	timeButton.setTexture(TextureManager::getTexture("timingComparison"));
 	timeButton.setPosition(434, 601);
 	tiles = vector<vector<Tile>>(51, vector<Tile>(71));
@@ -34,7 +34,7 @@ void Board::Draw(sf::RenderWindow& window)
 	window.draw(newMazeButton);
 	window.draw(timeButton);
 	window.draw(DFSbutton);
-	window.draw(BellmanFordButton);
+	window.draw(AStarButton);
 	for (unsigned int i = 0; i < tiles.size(); i++)
 	{
 		for (unsigned int j = 0; j < tiles[i].size(); j++)
@@ -90,7 +90,7 @@ void Board::leftClick(sf::Vector2i mousePos, sf::RenderWindow& window)
 	auto BFSbuttonBounds = BFSbutton.getGlobalBounds();
 	auto DFSbuttonBounds = DFSbutton.getGlobalBounds();
 	auto DijkstraButtonBounds = DijkstraButton.getGlobalBounds();
-	auto BellmanFordButtonBounds = BellmanFordButton.getGlobalBounds();
+	auto AStarButtonBounds = AStarButton.getGlobalBounds();
 	auto resetButtonBounds = resetButton.getGlobalBounds();
 	auto newMazeButtonBounds = newMazeButton.getGlobalBounds();
 	auto timeButtonBounds = timeButton.getGlobalBounds();
@@ -123,7 +123,7 @@ void Board::leftClick(sf::Vector2i mousePos, sf::RenderWindow& window)
 		//Start the Dijkstra visualization
 		runDijkstra(window, src, end);
 	}
-	if (BellmanFordButtonBounds.contains(mousePos.x, mousePos.y))
+	if (AStarButtonBounds.contains(mousePos.x, mousePos.y))
 	{
 		//Start the Bellman-Ford visualization
 		runAStar(window, src, end);

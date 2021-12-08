@@ -15,7 +15,7 @@ class Board
 	sf::Sprite DijkstraButton;
 	sf::Sprite resetButton;
 	sf::Sprite newMazeButton;
-	sf::Sprite BellmanFordButton;
+	sf::Sprite AStarButton;
 	sf::Text text;
 	vector<vector<Tile>> tiles;
 	vector<unordered_set<int>> adjList;
