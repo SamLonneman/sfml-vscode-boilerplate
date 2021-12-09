@@ -812,10 +812,10 @@ void Board::displayData(sf::RenderWindow& window)
 	sf::Text information;
 	information.setFont(font);
 	information.setCharacterSize(35);
-	information.setPosition(165, 100);
+	information.setPosition(20, 100);
 	information.setFillColor(sf::Color::White);
 	std::stringstream stream1;
-	stream1 << "Timing comparison for maze of 100,000 vertices";
+	stream1 << "Timing comparison for randomly generated maze of 100,000 vertices";
 	information.setString(stream1.str());
 
 	window.draw(screen);
