@@ -583,7 +583,7 @@ void Board::runAStar(sf::RenderWindow& window, int src, int end)
 }
 
 // Heuristic Function: Returns path distance from start + Manhattan distance to end
-unsigned int Board::F(vector<int> d, int i)
+unsigned int Board::F(vector<int>& d, int i)
 {
 	return d[i] + (25 - i / 35 - 1) + (35 - i % 35 - 1);
 }
@@ -782,7 +782,7 @@ vector<float> Board::runBigAStar()
 }
 
 // Heuristic Function: Returns path distance from start + Manhattan distance to end
-unsigned int Board::bigF(vector<int> d, int i)
+unsigned int Board::bigF(vector<int>& d, int i)
 {
 	return d[i] + (bigH - i / bigW - 1) + (bigW - i % bigW - 1);
 }
@@ -823,7 +823,7 @@ void Board::displayData(sf::RenderWindow& window)
 	window.draw(text);
 	window.draw(information);
 	window.display();
-	setBigBoard(320, 320);
+	setBigBoard(250, 400);
 
 	// Displays DFS information
 	vector<float> data = runBigDFS();

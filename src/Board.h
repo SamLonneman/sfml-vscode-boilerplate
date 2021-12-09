@@ -39,11 +39,11 @@ public:
 	void runDijkstra(sf::RenderWindow& window, int src, int end);
 	void runAStar(sf::RenderWindow& window, int src, int end);
 	void displayData(sf::RenderWindow& window);
-	unsigned int F(vector<int> d, int i);
+	unsigned int F(vector<int>& d, int i);
 	void setBigBoard(int h, int w);
 	vector<float> runBigBFS();
 	vector<float> runBigDFS();
 	vector<float> runBigDijkstra();
 	vector<float> runBigAStar();
-	unsigned int bigF(vector<int> d, int i);
+	unsigned int bigF(vector<int>& d, int i);
 };
