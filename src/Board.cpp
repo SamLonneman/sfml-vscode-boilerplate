@@ -4,6 +4,7 @@
 #include <queue>
 #include <sstream>
 #include <stack>
+#include <limits.h>
 using namespace std;
 
 Board::Board()
@@ -109,10 +110,11 @@ void Board::leftClick(sf::Vector2i mousePos, sf::RenderWindow& window)
 		runAStar(window, src, end);
 	}
 	if (timeButtonBounds.contains(mousePos.x, mousePos.y))
-	{
-		//Start the big boy timing and show results screen
-		displayData(window);
-	}
+    {
+        //Start the big boy timing and show results screen
+        int size = gatherSize(window);
+        displayData(window, size);
+    }
 }
 
 // Generates a random single-solution maze adjacency list using a version of DFS, then removes walls to introduce more solutions
@@ -787,122 +789,193 @@ unsigned int Board::bigF(vector<int>& d, int i)
 	return d[i] + (bigH - i / bigW - 1) + (bigW - i % bigW - 1);
 }
 
-void Board::displayData(sf::RenderWindow& window)
+void Board::displayData(sf::RenderWindow& window, int size)
 {
 
-	sf::RectangleShape screen(sf::Vector2f(window.getSize().x, window.getSize().y));
-	screen.setFillColor(sf::Color(0, 0, 0));
-	screen.setPosition(0, 0);
-	returnImage.setTexture(TextureManager::getTexture("return"));
-	returnImage.setPosition(window.getSize().x - 234, window.getSize().y - 240);
+    sf::RectangleShape screen(sf::Vector2f(window.getSize().x, window.getSize().y));
+    screen.setFillColor(sf::Color(0, 0, 0));
+    screen.setPosition(0, 0);
+    returnImage.setTexture(TextureManager::getTexture("return"));
+    returnImage.setPosition(window.getSize().x - 234, window.getSize().y - 240);
 
-	// Displayes instructions to hover over return button to exit
-	sf::Text text;
-	sf::Font font;
-	font.loadFromFile("src/text/mono.ttf");
-	text.setFont(font);
-	text.setCharacterSize(50);
-	text.setPosition(405, 30);
-	text.setFillColor(sf::Color::White);
-	std::stringstream stream;
-	stream << "Maze Runners";
-	text.setString(stream.str());
+    // Displayes instructions to hover over return button to exit
+    sf::Text text;
+    sf::Font font;
+    font.loadFromFile("src/text/mono.ttf");
+    text.setFont(font);
+    text.setCharacterSize(50);
+    text.setPosition(405, 30);
+    text.setFillColor(sf::Color::White);
+    std::stringstream stream;
+    stream << "Maze Runners";
+    text.setString(stream.str());
 
-	// Displays instructions to hover over return button to exit
-	sf::Text information;
-	information.setFont(font);
-	information.setCharacterSize(35);
-	information.setPosition(20, 100);
-	information.setFillColor(sf::Color::White);
-	std::stringstream stream1;
-	stream1 << "Timing comparison for randomly generated maze of 100,000 vertices";
-	information.setString(stream1.str());
+    // Displays instructions to hover over return button to exit
+    sf::Text information;
+    information.setFont(font);
+    information.setCharacterSize(35);
+    information.setPosition(20, 100);
+    information.setFillColor(sf::Color::White);
+    std::stringstream stream1;
+    int vertices = size * size;
+    stream1 << "Timing comparison for randomly generated maze of " << vertices << " vertices";
+    information.setString(stream1.str());
 
-	window.draw(screen);
-	window.draw(returnImage);
-	window.draw(text);
-	window.draw(information);
-	window.display();
-	setBigBoard(250, 400);
+    window.draw(screen);
+    window.draw(returnImage);
+    window.draw(text);
+    window.draw(information);
+    window.display();
+    setBigBoard(size, size);
 
-	// Displays DFS information
-	vector<float> data = runBigDFS();
-	sf::Text DFS;
-	DFS.setFont(font);
-	DFS.setCharacterSize(23);
-	DFS.setPosition(20, 210);
-	DFS.setFillColor(sf::Color::White);
-	std::stringstream DFSstream;
-	DFSstream << "DFS took " << data[0] << " seconds, visited " << data[1] << " vertices, and found a valid path of " << data[2] << " vertices";
-	DFS.setString(DFSstream.str());
+    // Displays DFS information
+    vector<float> data = runBigDFS();
+    sf::Text DFS;
+    DFS.setFont(font);
+    DFS.setCharacterSize(23);
+    DFS.setPosition(20, 210);
+    DFS.setFillColor(sf::Color::White);
+    std::stringstream DFSstream;
+    DFSstream << "DFS took " << data[0] << " seconds, visited " << data[1] << " vertices, and found a valid path of " << data[2] << " vertices";
+    DFS.setString(DFSstream.str());
 
-	window.draw(screen);
-	window.draw(returnImage);
-	window.draw(text);
-	window.draw(information);
-	window.draw(DFS);
-	window.display();
+    window.draw(screen);
+    window.draw(returnImage);
+    window.draw(text);
+    window.draw(information);
+    window.draw(DFS);
+    window.display();
 
-	// Displays BFS information
-	data = runBigBFS();
-	sf::Text BFS;
-	BFS.setFont(font);
-	BFS.setCharacterSize(23);
-	BFS.setPosition(20, 270);
-	BFS.setFillColor(sf::Color::White);
-	std::stringstream BFSstream;
-	BFSstream << "BFS took " << data[0] << " seconds, visited " << data[1] << " vertices, and found shortest path of " << data[2] << " vertices";
-	BFS.setString(BFSstream.str());
+    // Displays BFS information
+    data = runBigBFS();
+    sf::Text BFS;
+    BFS.setFont(font);
+    BFS.setCharacterSize(23);
+    BFS.setPosition(20, 270);
+    BFS.setFillColor(sf::Color::White);
+    std::stringstream BFSstream;
+    BFSstream << "BFS took " << data[0] << " seconds, visited " << data[1] << " vertices, and found shortest path of " << data[2] << " vertices";
+    BFS.setString(BFSstream.str());
 
-	window.draw(screen);
-	window.draw(returnImage);
-	window.draw(text);
-	window.draw(information);
-	window.draw(DFS);
-	window.draw(BFS);
-	window.display();
+    window.draw(screen);
+    window.draw(returnImage);
+    window.draw(text);
+    window.draw(information);
+    window.draw(DFS);
+    window.draw(BFS);
+    window.display();
 
-	// Displays Dijkstras information
-	data = runBigDijkstra();
-	sf::Text DIJ;
-	DIJ.setFont(font);
-	DIJ.setCharacterSize(23);
-	DIJ.setPosition(20, 330);
-	DIJ.setFillColor(sf::Color::White);
-	std::stringstream DIJstream;
-	DIJstream << "Dijkstra's took " << data[0] << " seconds, visited " << data[1] << " vertices, and found shortest path of " << data[2] << " vertices";
-	DIJ.setString(DIJstream.str());
+    // Displays Dijkstras information
+    data = runBigDijkstra();
+    sf::Text DIJ;
+    DIJ.setFont(font);
+    DIJ.setCharacterSize(23);
+    DIJ.setPosition(20, 330);
+    DIJ.setFillColor(sf::Color::White);
+    std::stringstream DIJstream;
+    DIJstream << "Dijkstra's took " << data[0] << " seconds, visited " << data[1] << " vertices, and found shortest path of " << data[2] << " vertices";
+    DIJ.setString(DIJstream.str());
 
-	window.draw(screen);
-	window.draw(returnImage);
-	window.draw(text);
-	window.draw(information);
-	window.draw(DFS);
-	window.draw(BFS);
-	window.draw(DIJ);
-	window.display();
+    window.draw(screen);
+    window.draw(returnImage);
+    window.draw(text);
+    window.draw(information);
+    window.draw(DFS);
+    window.draw(BFS);
+    window.draw(DIJ);
+    window.display();
 
-	// Displays A* information
-	data = runBigAStar();
-	sf::Text A;
-	A.setFont(font);
-	A.setCharacterSize(23);
-	A.setPosition(20, 390);
-	A.setFillColor(sf::Color::White);
-	std::stringstream Astream;
-	Astream << "A* took " << data[0] << " seconds, visited " << data[1] << " vertices, and found shortest path of " << data[2] << " vertices";
-	A.setString(Astream.str());
+    // Displays A* information
+    data = runBigAStar();
+    sf::Text A;
+    A.setFont(font);
+    A.setCharacterSize(23);
+    A.setPosition(20, 390);
+    A.setFillColor(sf::Color::White);
+    std::stringstream Astream;
+    Astream << "A* took " << data[0] << " seconds, visited " << data[1] << " vertices, and found shortest path of " << data[2] << " vertices";
+    A.setString(Astream.str());
 
-	window.draw(screen);
-	window.draw(returnImage);
-	window.draw(text);
-	window.draw(information);
-	window.draw(DFS);
-	window.draw(BFS);
-	window.draw(DIJ);
-	window.draw(A);
-	window.display();
+    window.draw(screen);
+    window.draw(returnImage);
+    window.draw(text);
+    window.draw(information);
+    window.draw(DFS);
+    window.draw(BFS);
+    window.draw(DIJ);
+    window.draw(A);
+    window.display();
 
-	while (!sf::Mouse::isButtonPressed(sf::Mouse::Left))
-		continue;
+    while (!sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        continue;
+}
+
+int Board::gatherSize(sf::RenderWindow& window) {
+    sf::RectangleShape screen1(sf::Vector2f(window.getSize().x, window.getSize().y));
+    screen1.setFillColor(sf::Color(0, 0, 0));
+    screen1.setPosition(0, 0);
+
+    sf::Text instruction;
+    sf::Font font;
+    instruction.setFont(font);
+    font.loadFromFile("src/text/mono.ttf");
+    instruction.setCharacterSize(30);
+    instruction.setPosition(175, 50);
+    instruction.setFillColor(sf::Color::White);
+    std::stringstream instructionstream;
+    instructionstream << "Select the side length for a square maze in vertices";
+    instruction.setString(instructionstream.str());
+
+    sf::Text instruction2;
+    instruction2.setFont(font);
+    instruction2.setCharacterSize(30);
+    instruction2.setPosition(325, 100);
+    instruction2.setFillColor(sf::Color::White);
+    std::stringstream instructionstream2;
+    instructionstream2 << "Use up and down arrows to adjust";
+    instruction2.setString(instructionstream2.str());
+
+    sf::Text instruction3;
+    instruction3.setFont(font);
+    instruction3.setCharacterSize(30);
+    instruction3.setPosition(375, 150);
+    instruction3.setFillColor(sf::Color::White);
+    std::stringstream instructionstream3;
+    instructionstream3 << "Press \"Enter\" to submit";
+    instruction3.setString(instructionstream3.str());
+
+    sf::Text size1;
+    size1.setFont(font);
+    size1.setCharacterSize(30);
+    size1.setPosition(window.getSize().x / 2 - 120, window.getSize().y / 2 + 30);
+    size1.setFillColor(sf::Color::White);
+	sf::Text size2;
+    size2.setFont(font);
+    size2.setCharacterSize(30);
+    size2.setPosition(window.getSize().x / 2 - 220, window.getSize().y / 2 + 100);
+    size2.setFillColor(sf::Color::White);
+
+    int size = 320;
+    while (!sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+            size++;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && size > 2)
+            size--;
+        std::stringstream siz1;
+        siz1 << size;
+        size1.setString("Side length: " + siz1.str());
+		std::stringstream siz2;
+        siz2 << (size * size);
+        size2.setString("Total number of vertices: " + siz2.str());
+
+		window.draw(screen1);
+		window.draw(instruction);
+		window.draw(instruction2);
+		window.draw(instruction3);
+        window.draw(size1);
+		window.draw(size2);
+        window.display();
+		this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    return size;
 }

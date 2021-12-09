@@ -1,13 +1,6 @@
 #include "Board.h"
 #include "TextureManager.h"
 #include <SFML/Graphics.hpp>
-#include <algorithm>
-#include <chrono>
-#include <iostream>
-#include <queue>
-#include <stack>
-#include <unordered_set>
-#include <vector>
 using namespace std;
 
 int main()
