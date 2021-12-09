@@ -111,30 +111,35 @@ void Board::leftClick(sf::Vector2i mousePos, sf::RenderWindow& window)
 	{
 		//Start the big boy timing and show results screen
 		setBigBoard(320, 320);
-		cout << "Maze randomly generated with 100,000 vertices." << endl;
-		vector<float> results;
+		vector<float> BFSResults = runBigBFS();
+		vector<float> DFSResults = runBigDFS();
+		vector<float> DijkstraResults = runBigDijkstra();
+		vector<float> AStarResults = runBigAStar();
+		vector<float> allResults;
+		allResults.insert(allResults.end(), BFSResults.begin(), BFSResults.end());
+		allResults.insert(allResults.end(), DFSResults.begin(), DFSResults.end());
+		allResults.insert(allResults.end(), DijkstraResults.begin(), DijkstraResults.end());
+		allResults.insert(allResults.end(), AStarResults.begin(), AStarResults.end());
 
-		results = runBigBFS();
-		cout << "In " << results[0] << " seconds, ";
-		cout << "BFS explored " << (int)results[1] << " vertices ";
-		cout << "to find the shortest solution, which is " << (int)results[2] << " vertices in length." << endl;
+		// MICHAEL: you can use this vector called allResults.
+		// It has duration, numvisited, and path length for bfs, then dfs, then dijkstra, then a*
+		// Total of 12 items.
 
-		results = runBigDFS();
-		cout << "In " << results[0] << " seconds, ";
-		cout << "DFS explored " << (int)results[1] << " vertices ";
-		cout << "to find a valid but unoptimal solution, which is " << (int)results[2] << " vertices in length." << endl;
+		cout << "In " << allResults[0] << " seconds, ";
+		cout << "BFS explored " << (int)allResults[1] << " vertices ";
+		cout << "to find the shortest solution, which is " << (int)allResults[2] << " vertices in length." << endl;
 
-		results = runBigDijkstra();
-		cout << "In " << results[0] << " seconds, ";
-		cout << "Dijkstra's algorithm explored " << (int)results[1] << " vertices ";
-		cout << "to find the shortest solution, which is " << (int)results[2] << " vertices in length." << endl;
+		cout << "In " << allResults[3] << " seconds, ";
+		cout << "DFS explored " << (int)allResults[4] << " vertices ";
+		cout << "to find a valid but unoptimal solution, which is " << (int)allResults[5] << " vertices in length." << endl;
 
-		results = runBigAStar();
-		cout << "In " << results[0] << " seconds, ";
-		cout << "A* search explored " << (int)results[1] << " vertices ";
-		cout << "to find the shortest solution, which is " << (int)results[2] << " vertices in length." << endl;
+		cout << "In " << allResults[6] << " seconds, ";
+		cout << "Dijkstra's algorithm explored " << (int)allResults[7] << " vertices ";
+		cout << "to find the shortest solution, which is " << (int)allResults[8] << " vertices in length." << endl;
 
-		cout << endl;
+		cout << "In " << allResults[9] << " seconds, ";
+		cout << "A* search explored " << (int)allResults[10] << " vertices ";
+		cout << "to find the shortest solution, which is " << (int)allResults[11] << " vertices in length." << endl;
 	}
 }
 
