@@ -16,6 +16,7 @@ class Board
 	sf::Sprite resetButton;
 	sf::Sprite newMazeButton;
 	sf::Sprite AStarButton;
+	sf::Sprite returnImage;
 	sf::Text text;
 	vector<vector<Tile>> tiles;
 	vector<unordered_set<int>> adjList;
@@ -37,6 +38,7 @@ public:
 	void runDFS(sf::RenderWindow& window, int src, int end);
 	void runDijkstra(sf::RenderWindow& window, int src, int end);
 	void runAStar(sf::RenderWindow& window, int src, int end);
+	void displayData(sf::RenderWindow& window);
 	unsigned int F(vector<int> d, int i);
 	void setBigBoard(int h, int w);
 	vector<float> runBigBFS();
