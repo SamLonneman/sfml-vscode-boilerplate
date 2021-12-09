@@ -19,22 +19,29 @@ class Board
 	sf::Text text;
 	vector<vector<Tile>> tiles;
 	vector<unordered_set<int>> adjList;
+	vector<unordered_set<int>> bigAdjList;
+	int bigH;
+	int bigW;
 
 public:
 	Board();
 	void Draw(sf::RenderWindow& window);
-	void leftClick(sf::Vector2i mousePos, sf::RenderWindow& window);
+	void reDraw(sf::RenderWindow& window, int x, int y);
 	void resetGame();
-	void addTile(Tile& tile, int x, int y);
+	void leftClick(sf::Vector2i mousePos, sf::RenderWindow& window);
+	static vector<unordered_set<int>> generateGraph(int H, int W);
+	vector<vector<bool>> graphToMaze(int h, int w);
 	void setBoard();
+	void addTile(Tile& tile, int x, int y);
 	void runBFS(sf::RenderWindow& window, int src, int end);
 	void runDFS(sf::RenderWindow& window, int src, int end);
 	void runDijkstra(sf::RenderWindow& window, int src, int end);
 	void runAStar(sf::RenderWindow& window, int src, int end);
-	static int h(int v);
-	static unsigned int f(vector<int> d, int v);
-	void runBellmanFord(sf::RenderWindow& window, int src, int end);
-	void reDraw(sf::RenderWindow& window, int x, int y);
-	static vector<unordered_set<int>> generateGraph(int H, int W);
-	vector<vector<bool>> graphToMaze(int H, int W);
+	unsigned int F(vector<int> d, int i);
+	void setBigBoard(int h, int w);
+	vector<float> runBigBFS();
+	vector<float> runBigDFS();
+	vector<float> runBigDijkstra();
+	vector<float> runBigAStar();
+	unsigned int bigF(vector<int> d, int i);
 };
